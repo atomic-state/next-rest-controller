@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    // "watch": true,
+    "outDir": "./lib",
+    "module": "commonjs",
+    "esModuleInterop": true,
+    "target": "es5",
+    "lib": ["es6", "es2019"],
+    "sourceMap": false,
+    "allowJs": true,
+    "moduleResolution": "node",
+    "rootDir": "src",
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "declaration": true
+  },
+  "include": ["src"],
+  "exclude": ["node_modules"],
+  "types": ["node"]
+}
