@@ -23,11 +23,15 @@ const AuthHandler = Controller("/auth", {
     },
     async "GET /[id]/info"(req, res) {
         res.send("Info for " + req.query.id)
+    },
+    // Like Express
+    async "GET /:id/info/:slug"(req, res) {
+        res.send("Info for " + req.query.id)
     }
 })
 ```
 
 #### Explanation
-When adding a handler/method, it should start with an HTTP verb, followed by a space, and a url to handle (with or without query params using square brackets).
+When adding a handler/method, it should start with an HTTP verb, followed by a space, and a url to handle (with or without query params using square brackets, or like Express, by placing `:` before).
 
 Sending, for example, a POST request that would be handled by a GET handler, will send a `405` status code
