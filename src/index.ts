@@ -14,52 +14,56 @@ export function Controller(path: string, paths: ControllerMethods = {}) {
 
     const handlePathUrl = "/api" + path
 
-    const totalHandlers = Object.keys(paths).length
+    // const totalHandlers = Object.keys(paths).length
 
-    for (let path in paths) {
-      const [method, handleUrl] = path.split(" ")
+    let hasHandlers = false
 
-      let $handleUrl = handlePathUrl + handleUrl.split("?")[0]
+    try {
+      for (let path in paths) {
+        const [method, handleUrl] = path.split(" ")
 
-      const handleParts = $handleUrl.split("/")
+        let $handleUrl = handlePathUrl + handleUrl.split("?")[0]
 
-      let finalHandler: string[] = []
+        const handleParts = $handleUrl.split("/")
 
-      let finalQuery: any = {}
+        let finalHandler: string[] = []
 
-      handleParts.forEach((handlePart, i) => {
-        if (handlePart.startsWith("[") && handlePart.endsWith("]")) {
-          const withoutBrackets = handlePart.replace(/\[|\]/g, "")
+        let finalQuery: any = {}
 
-          finalQuery[withoutBrackets] = urlParts[i]
+        handleParts.forEach((handlePart, i) => {
+          if (handlePart.startsWith("[") && handlePart.endsWith("]")) {
+            hasHandlers = true
+            const withoutBrackets = handlePart.replace(/\[|\]/g, "")
 
-          finalHandler.push(urlParts[i] as never)
-        } else {
-          finalHandler.push(handlePart as never)
-        }
-      })
+            finalQuery[withoutBrackets] = urlParts[i]
 
-      if (finalHandler.join("/") === urlParts.join("/")) {
-        const withQ = { ...req.query, ...finalQuery }
+            finalHandler.push(urlParts[i] as never)
+          } else {
+            finalHandler.push(handlePart as never)
+          }
+        })
 
-        if (req.method === method) {
-          req.query = withQ
+        if (finalHandler.join("/") === urlParts.join("/") && !handled) {
+          hasHandlers = true
 
-          paths[path](req, res)
-          handled = true
-          break
-        } else {
-          if (!(`${req.method} ${handleUrl}` in paths) && !handled) {
-            res.status(405)
-            res.send(`cannot ${req.method} ${finalHandler.join("/")}`)
+          if (req.method === method) {
+            const withQ = { ...req.query, ...finalQuery }
+            req.query = withQ
+
+            paths[path](req, res)
+            handled = true
+            break
           }
         }
+      }
+    } catch (err) {
+    } finally {
+      if (hasHandlers) {
+        res.status(405)
+        res.send(`cannot ${req.method} ${req.url}`)
       } else {
         res.status(404)
-        res.send(`Not found`)
-        if (Object.keys(paths).indexOf(path) < totalHandlers - 1) {
-          break
-        }
+        res.send("not found")
       }
     }
   }
