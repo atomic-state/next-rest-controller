@@ -4,16 +4,15 @@ type ControllerMethods = {
   [k: string]: (req: NextApiRequest, res: NextApiResponse) => void
 }
 
-export function Controller(paths: ControllerMethods = {}) {
+export function Controller(path: string, paths: ControllerMethods = {}) {
   return (req: NextApiRequest, res: NextApiResponse) => {
     let handled = false
-
     const { url = "" } = req
     const [urlWithourQueryParams] = url.split("?")
 
     const urlParts = urlWithourQueryParams.split("/")
 
-    const handlePathUrl = "/api/" + __dirname.split("/api/").at(-1)
+    const handlePathUrl = "/api" + path
 
     for (let path in paths) {
       const [method, handleUrl] = path.split(" ")
@@ -45,11 +44,17 @@ export function Controller(paths: ControllerMethods = {}) {
           req.query = withQ
 
           paths[path](req, res)
-        } else {
-          res.status(405)
 
-          res.send(`Cannot ${req.method} ${url}`)
+          handled = true
+        } else {
+          if (!(`${req.method} ${handleUrl}` in paths)) {
+            res.status(405)
+            res.send(`cannot ${req.method} ${finalHandler.join("/")}`)
+          }
         }
+      } else {
+        res.status(404)
+        res.send(`Not found`)
       }
     }
   }
