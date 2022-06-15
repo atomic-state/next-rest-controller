@@ -5,14 +5,16 @@ type ControllerMethods = {
 }
 
 export function Controller(path: string, paths: ControllerMethods = {}) {
-  return (req: NextApiRequest, res: NextApiResponse) => {
-    let handled = false
+  let handled = false
+  return async (req: NextApiRequest, res: NextApiResponse) => {
     const { url = "" } = req
     const [urlWithourQueryParams] = url.split("?")
 
     const urlParts = urlWithourQueryParams.split("/")
 
     const handlePathUrl = "/api" + path
+
+    const totalHandlers = Object.keys(paths).length
 
     for (let path in paths) {
       const [method, handleUrl] = path.split(" ")
@@ -37,17 +39,17 @@ export function Controller(path: string, paths: ControllerMethods = {}) {
         }
       })
 
-      if (finalHandler.join("/") === urlParts.join("/") && !handled) {
+      if (finalHandler.join("/") === urlParts.join("/")) {
         const withQ = { ...req.query, ...finalQuery }
 
         if (req.method === method) {
           req.query = withQ
 
           paths[path](req, res)
-
           handled = true
+          break
         } else {
-          if (!(`${req.method} ${handleUrl}` in paths)) {
+          if (!(`${req.method} ${handleUrl}` in paths) && !handled) {
             res.status(405)
             res.send(`cannot ${req.method} ${finalHandler.join("/")}`)
           }
@@ -55,6 +57,9 @@ export function Controller(path: string, paths: ControllerMethods = {}) {
       } else {
         res.status(404)
         res.send(`Not found`)
+        if (Object.keys(paths).indexOf(path) < totalHandlers - 1) {
+          break
+        }
       }
     }
   }
