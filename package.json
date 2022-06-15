@@ -1,6 +1,6 @@
 {
   "name": "next-rest-controller",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "A REST helper for Next apis",
   "main": "lib/index.js",
   "repository": "https://github.com/atomic-state/rest-next",
