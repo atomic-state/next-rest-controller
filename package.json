@@ -1,5 +1,5 @@
 {
-  "name": "rest-next",
+  "name": "next-rest-controller",
   "version": "0.0.1",
   "description": "A REST helper for Next apis",
   "main": "lib/index.js",
