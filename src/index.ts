@@ -5,16 +5,14 @@ type ControllerMethods = {
 }
 
 export function Controller(path: string, paths: ControllerMethods = {}) {
-  let handled = false
   return async (req: NextApiRequest, res: NextApiResponse) => {
+    let handled = false
     const { url = "" } = req
     const [urlWithourQueryParams] = url.split("?")
 
     const urlParts = urlWithourQueryParams.split("/")
 
     const handlePathUrl = "/api" + path
-
-    // const totalHandlers = Object.keys(paths).length
 
     let hasHandlers = false
 
@@ -58,12 +56,14 @@ export function Controller(path: string, paths: ControllerMethods = {}) {
       }
     } catch (err) {
     } finally {
-      if (hasHandlers) {
-        res.status(405)
-        res.send(`cannot ${req.method} ${req.url}`)
-      } else {
-        res.status(404)
-        res.send("not found")
+      if (!handled) {
+        if (hasHandlers) {
+          res.status(405)
+          res.send(`cannot ${req.method} ${req.url}`)
+        } else {
+          res.status(404)
+          res.send("not found")
+        }
       }
     }
   }
